@@ -29,6 +29,7 @@ impl Editor {
             }
         }
         disable_raw_mode().unwrap();
+        print!("\x1b[H");
         Ok(())
     }
 }
