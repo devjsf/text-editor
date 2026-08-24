@@ -1,0 +1,10 @@
+/Users/joshua/Documents/text-editor/target/debug/deps/text_editor-2cdea6d7f2e9c46c.d: src/main.rs src/editor.rs Cargo.toml
+
+/Users/joshua/Documents/text-editor/target/debug/deps/libtext_editor-2cdea6d7f2e9c46c.rmeta: src/main.rs src/editor.rs Cargo.toml
+
+src/main.rs:
+src/editor.rs:
+Cargo.toml:
+
+# env-dep:CLIPPY_ARGS=--no-deps__CLIPPY_HACKERY__
+# env-dep:CLIPPY_CONF_DIR
