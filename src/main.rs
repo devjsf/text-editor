@@ -2,5 +2,7 @@ mod editor;
 use editor::Editor;
 
 fn main() {
-    Editor::default().run();
+    if let Err(err) = Editor::default().run() {
+        panic!("{err:?}");
+    }
 }

@@ -1,5 +1,8 @@
-use crossterm::event::{read, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers};
-use crossterm::terminal::{enable_raw_mode,disable_raw_mode};
+use crossterm::event::{read, Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers};
+use crossterm::terminal::{enable_raw_mode,disable_raw_mode, Clear, ClearType};
+use crossterm::execute;
+use std::io::stdout;
+use std::io;
 
 pub struct Editor {
     to_quit: bool,
@@ -10,26 +13,43 @@ impl Editor {
         Editor {to_quit: false}
     }
 
-    pub fn run(&mut self) {
-        if let Err(error) = self.repl() {
-            panic!("{error:#?}")
-        }
+    pub fn run(&mut self) -> io::Result<()> {
+        Self::initialize()?;
+        self.repl()?;
+        Self::terminate()?;
+        Ok(())
     }
-    fn repl(&mut self) -> Result<(), std::io::Error> {
-        enable_raw_mode().unwrap();
+
+    pub fn initialize() -> io::Result<()> {
+        enable_raw_mode()?;
+        Self::clear_screen()?;
+        Ok(())
+    }
+    pub fn terminate() -> io::Result<()> {
+        disable_raw_mode()?;
+        Ok(())
+    }    
+
+    pub fn clear_screen() -> io::Result<()> {
+        let mut write = stdout();
+        execute!(write, Clear(ClearType::All))
+    }
+
+    fn repl(&mut self) -> io::Result<()> {
         loop {
-            if let Key(KeyEvent{code, modifiers, kind, state}) = read()? {
-                println!("{code:?} {modifiers:?} {kind:?} {state:?}\r");
-                if let Char('c') = code && modifiers == KeyModifiers::CONTROL {
-                        self.to_quit = true;
-                }
-            }
+            let event = read()?;
+            self.read_event(&event);
+            Self::clear_screen()?;
             if self.to_quit {
                 break;
             }
         }
-        disable_raw_mode().unwrap();
-        print!("\x1b[H");
         Ok(())
+    }
+    fn read_event(&mut self, event: &Event) {
+        if let Key(KeyEvent{code, modifiers,..}) = event &&
+            let Char('c') = code && *modifiers == KeyModifiers::CONTROL {
+                self.to_quit = true;
+        }
     }
 }
