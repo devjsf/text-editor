@@ -7,8 +7,8 @@ pub struct Editor {
 }
 
 impl Editor {
-    pub fn default() -> Self {
-        Editor {to_quit: false}
+    pub const fn default() -> Self {
+        Self {to_quit: false}
     }
 
     pub fn run(&mut self) -> io::Result<()> {
@@ -42,10 +42,10 @@ impl Editor {
     
     fn repl(&mut self) -> io::Result<()> {
         loop {
-            Self::draw_row();
             let event = read()?;
             self.read_event(&event);
-            Terminal::clear_screen()?;
+            self.refresh_screen()?;
+            Self::draw_row();
             if self.to_quit {
                 break;
             }
