@@ -1,8 +1,6 @@
 use crossterm::event::{read, Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers};
-use crossterm::terminal::{enable_raw_mode,disable_raw_mode, Clear, ClearType};
-use crossterm::execute;
-use std::io::stdout;
 use std::io;
+use super::terminal::Terminal;
 
 pub struct Editor {
     to_quit: bool,
@@ -14,32 +12,40 @@ impl Editor {
     }
 
     pub fn run(&mut self) -> io::Result<()> {
-        Self::initialize()?;
+        Terminal::initialize()?;
         self.repl()?;
-        Self::terminate()?;
+        Terminal::terminate()?;
         Ok(())
     }
 
-    pub fn initialize() -> io::Result<()> {
-        enable_raw_mode()?;
-        Self::clear_screen()?;
+
+    pub fn refresh_screen(&self) -> io::Result<()> {
+        if self.to_quit {
+            Terminal::clear_screen()?;
+        }else {
+            Self::draw_row()?;
+            Terminal::move_cursor(0,0)?;
+        }
         Ok(())
     }
-    pub fn terminate() -> io::Result<()> {
-        disable_raw_mode()?;
+
+    pub fn draw_row() -> io::Result<()> {
+        let height = Terminal::size()?.1;
+        for row in 0..height {
+            print!("~");
+            if row + 1 < height {
+                print!("\r\n");
+            }
+        }
         Ok(())
-    }    
-
-    pub fn clear_screen() -> io::Result<()> {
-        let mut write = stdout();
-        execute!(write, Clear(ClearType::All))
     }
-
+    
     fn repl(&mut self) -> io::Result<()> {
         loop {
+            Self::draw_row();
             let event = read()?;
             self.read_event(&event);
-            Self::clear_screen()?;
+            Terminal::clear_screen()?;
             if self.to_quit {
                 break;
             }
