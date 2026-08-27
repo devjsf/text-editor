@@ -46,6 +46,7 @@ impl Editor {
     fn repl(&mut self) -> io::Result<()> {
         loop {
             self.refresh_screen()?;
+            Terminal::move_cursor(0,0)?;
             let event = read()?;
             self.read_event(&event);
             if self.to_quit {
