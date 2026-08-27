@@ -46,6 +46,7 @@ impl Editor {
             self.read_event(&event);
             self.refresh_screen()?;
             Self::draw_row();
+            Terminal::move_cursor(0,0)?;
             if self.to_quit {
                 break;
             }
