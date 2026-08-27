@@ -1,8 +1,7 @@
 use crossterm::terminal::{enable_raw_mode,disable_raw_mode, size, Clear, ClearType};
 use crossterm::cursor::MoveTo;
 use crossterm::execute;
-use std::io::stdout;
-use std::io;
+use std::io::{self, stdout, Write};
 
 pub struct Terminal{}
 
@@ -18,6 +17,11 @@ impl Terminal {
         Self::move_cursor(0,0)?;
         Ok(())
     }    
+
+    pub fn flush() -> io::Result<()> {
+        io::stdout().flush()?;
+        Ok(())
+    }
 
     pub fn clear_screen() -> io::Result<()> {
         execute!(stdout(), Clear(ClearType::All))?;

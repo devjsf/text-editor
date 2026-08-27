@@ -38,7 +38,7 @@ impl Editor {
             if row + 1 < height {
                 print!("\r\n");
             }
-        io::stdout().flush()?;
+        Terminal::flush()?;
         }
         Ok(())
     }
