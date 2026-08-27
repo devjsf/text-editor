@@ -25,7 +25,6 @@ impl Editor {
             Terminal::clear_screen()?;
         }else {
             Terminal::move_cursor(Position{x:0, y:0})?;
-            Terminal::clear_screen()?;
             Self::draw_row()?;
         }
         Terminal::show_cursor()?;
@@ -35,10 +34,11 @@ impl Editor {
     pub fn draw_row() -> io::Result<()> {
         let Size{height,..} = Terminal::size()?;
         for row in 0..height {
-            let row_display = row + 1;
-            print!("{row_display}");
+            Terminal::clear_line()?;
+            let row_display: String = (row + 1).to_string();
+            Terminal::print(&row_display)?;
             if row + 1 < height {
-                print!("\r\n");
+                Terminal::print("\r\n")?;
             }
         Terminal::flush()?;
         }
