@@ -15,6 +15,7 @@ impl Terminal {
     }
     pub fn terminate() -> io::Result<()> {
         disable_raw_mode()?;
+        Self::move_cursor(0,0)?;
         Ok(())
     }    
 
