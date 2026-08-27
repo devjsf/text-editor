@@ -42,10 +42,10 @@ impl Editor {
     
     fn repl(&mut self) -> io::Result<()> {
         loop {
-            let event = read()?;
-            self.read_event(&event);
             self.refresh_screen()?;
             Self::draw_row();
+            let event = read()?;
+            self.read_event(&event);
             Terminal::move_cursor(0,0)?;
             if self.to_quit {
                 break;
