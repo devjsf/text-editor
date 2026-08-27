@@ -20,6 +20,7 @@ impl Editor {
 
 
     pub fn refresh_screen(&self) -> io::Result<()> {
+        Terminal::hide_cursor()?;
         if self.to_quit {
             Terminal::clear_screen()?;
         }else {
@@ -27,6 +28,7 @@ impl Editor {
             Terminal::clear_screen()?;
             Self::draw_row()?;
         }
+        Terminal::show_cursor()?;
         Ok(())
     }
 

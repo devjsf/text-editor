@@ -1,6 +1,6 @@
 use crossterm::terminal::{enable_raw_mode,disable_raw_mode, size, Clear, ClearType};
-use crossterm::cursor::MoveTo;
-use crossterm::execute;
+use crossterm::cursor::{Hide, Show, MoveTo};
+use crossterm::{execute, queue};
 use std::io::{self, stdout, Write};
 
 pub struct Position {
@@ -42,6 +42,17 @@ impl Terminal {
         execute!(stdout(), MoveTo(position.x, position.y))?;
         Ok(())
     }
+
+    pub fn show_cursor() -> io::Result<()> {
+        queue!(stdout(), Show)?;
+        Ok(())
+    }
+
+    pub fn hide_cursor() -> io::Result<()> {
+        queue!(stdout(), Hide)?;
+        Ok(())
+    }
+
     pub fn size() -> io::Result<Size> {
         let (width, height) = size()?;
         Ok(Size{width, height})
