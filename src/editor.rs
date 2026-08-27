@@ -1,6 +1,6 @@
 use crossterm::event::{read, Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers};
-use std::io::{self, Write};
-use super::terminal::Terminal;
+use std::io;
+use super::terminal::{Terminal, Size, Position};
 
 pub struct Editor {
     to_quit: bool,
@@ -23,7 +23,7 @@ impl Editor {
         if self.to_quit {
             Terminal::clear_screen()?;
         }else {
-            Terminal::move_cursor(0,0)?;
+            Terminal::move_cursor(Position{x:0, y:0})?;
             Terminal::clear_screen()?;
             Self::draw_row()?;
         }
@@ -31,7 +31,7 @@ impl Editor {
     }
 
     pub fn draw_row() -> io::Result<()> {
-        let height = Terminal::size()?.1;
+        let Size{height,..} = Terminal::size()?;
         for row in 0..height {
             let row_display = row + 1;
             print!("{row_display}");
@@ -46,7 +46,7 @@ impl Editor {
     fn repl(&mut self) -> io::Result<()> {
         loop {
             self.refresh_screen()?;
-            Terminal::move_cursor(0,0)?;
+            Terminal::move_cursor(Position{x:0, y:0})?;
             let event = read()?;
             self.read_event(&event);
             if self.to_quit {

@@ -3,18 +3,28 @@ use crossterm::cursor::MoveTo;
 use crossterm::execute;
 use std::io::{self, stdout, Write};
 
+pub struct Position {
+    pub x: u16,
+    pub y: u16,
+}
+
+pub struct Size {
+    pub width: u16,
+    pub height: u16,
+}
+
 pub struct Terminal{}
 
 impl Terminal {
     pub fn initialize() -> io::Result<()> {
         enable_raw_mode()?;
         Self::clear_screen()?;
-        Self::move_cursor(0,0)?;
+        Self::move_cursor(Position{x:0, y:0})?;
         Ok(())
     }
     pub fn terminate() -> io::Result<()> {
         disable_raw_mode()?;
-        Self::move_cursor(0,0)?;
+        Self::move_cursor(Position{x:0, y:0})?;
         Ok(())
     }    
 
@@ -28,11 +38,12 @@ impl Terminal {
         Ok(())
     }
 
-    pub fn move_cursor(x: u16, y: u16) -> io::Result<()> {
-        execute!(stdout(), MoveTo(x,y))?;
+    pub fn move_cursor(position: Position) -> io::Result<()> {
+        execute!(stdout(), MoveTo(position.x, position.y))?;
         Ok(())
     }
-    pub fn size() -> io::Result<(u16, u16)> {
-        size()
+    pub fn size() -> io::Result<Size> {
+        let (width, height) = size()?;
+        Ok(Size{width, height})
     }
 }
