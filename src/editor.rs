@@ -32,7 +32,7 @@ impl Editor {
     pub fn draw_row() -> io::Result<()> {
         let height = Terminal::size()?.1;
         for row in 0..height {
-            print!("~");
+            print!("{row}");
             if row + 1 < height {
                 print!("\r\n");
             }
