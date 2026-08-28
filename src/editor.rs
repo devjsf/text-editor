@@ -24,7 +24,7 @@ impl Editor {
         if self.to_quit {
             Terminal::clear_screen()?;
         }else {
-            Terminal::move_caret(Position{x:0, y:0})?;
+            Terminal::move_caret(Position{col:0, row:0})?;
             Self::draw_row()?;
         }
         Terminal::show_caret()?;
@@ -48,7 +48,7 @@ impl Editor {
     fn repl(&mut self) -> io::Result<()> {
         loop {
             self.refresh_screen()?;
-            Terminal::move_caret(Position{x:0, y:0})?;
+            Terminal::move_caret(Position{col:0, row:0})?;
             let event = read()?;
             self.read_event(&event);
             if self.to_quit {
