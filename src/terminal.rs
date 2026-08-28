@@ -1,5 +1,5 @@
 use crossterm::terminal::{enable_raw_mode,disable_raw_mode, size, Clear, ClearType};
-use crossterm::cursor::{Hide, Show, MoveTo};
+use crossterm::caret::{Hide, Show, MoveTo};
 use crossterm::{execute, queue};
 use crossterm::style::Print;
 use std::io::{self, stdout, Write};
@@ -20,12 +20,12 @@ impl Terminal {
     pub fn initialize() -> io::Result<()> {
         enable_raw_mode()?;
         Self::clear_screen()?;
-        Self::move_cursor(Position{x:0, y:0})?;
+        Self::move_caret(Position{x:0, y:0})?;
         Ok(())
     }
     pub fn terminate() -> io::Result<()> {
         disable_raw_mode()?;
-        Self::move_cursor(Position{x:0, y:0})?;
+        Self::move_caret(Position{x:0, y:0})?;
         Ok(())
     }    
 
@@ -44,17 +44,17 @@ impl Terminal {
         Ok(())
     }
 
-    pub fn move_cursor(position: Position) -> io::Result<()> {
+    pub fn move_caret(position: Position) -> io::Result<()> {
         execute!(stdout(), MoveTo(position.x, position.y))?;
         Ok(())
     }
 
-    pub fn show_cursor() -> io::Result<()> {
+    pub fn show_caret() -> io::Result<()> {
         queue!(stdout(), Show)?;
         Ok(())
     }
 
-    pub fn hide_cursor() -> io::Result<()> {
+    pub fn hide_caret() -> io::Result<()> {
         queue!(stdout(), Hide)?;
         Ok(())
     }

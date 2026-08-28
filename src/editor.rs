@@ -20,14 +20,14 @@ impl Editor {
 
 
     pub fn refresh_screen(&self) -> io::Result<()> {
-        Terminal::hide_cursor()?;
+        Terminal::hide_caret()?;
         if self.to_quit {
             Terminal::clear_screen()?;
         }else {
-            Terminal::move_cursor(Position{x:0, y:0})?;
+            Terminal::move_caret(Position{x:0, y:0})?;
             Self::draw_row()?;
         }
-        Terminal::show_cursor()?;
+        Terminal::show_caret()?;
         Ok(())
     }
 
@@ -48,7 +48,7 @@ impl Editor {
     fn repl(&mut self) -> io::Result<()> {
         loop {
             self.refresh_screen()?;
-            Terminal::move_cursor(Position{x:0, y:0})?;
+            Terminal::move_caret(Position{x:0, y:0})?;
             let event = read()?;
             self.read_event(&event);
             if self.to_quit {
