@@ -20,12 +20,12 @@ impl Terminal {
     pub fn initialize() -> io::Result<()> {
         enable_raw_mode()?;
         Self::clear_screen()?;
-        Self::move_caret(Position{col:0, row:0})?;
+        Self::move_cursor(Position{col:0, row:0})?;
         Ok(())
     }
     pub fn terminate() -> io::Result<()> {
         disable_raw_mode()?;
-        Self::move_caret(Position{col:0, row:0})?;
+        Self::move_cursor(Position{col:0, row:0})?;
         Ok(())
     }    
 
@@ -44,17 +44,17 @@ impl Terminal {
         Ok(())
     }
 
-    pub fn move_caret(position: Position) -> io::Result<()> {
+    pub fn move_cursor(position: Position) -> io::Result<()> {
         execute!(stdout(), MoveTo(position.col, position.row))?;
         Ok(())
     }
 
-    pub fn show_caret() -> io::Result<()> {
+    pub fn show_cursor() -> io::Result<()> {
         queue!(stdout(), Show)?;
         Ok(())
     }
 
-    pub fn hide_caret() -> io::Result<()> {
+    pub fn hide_cursor() -> io::Result<()> {
         queue!(stdout(), Hide)?;
         Ok(())
     }

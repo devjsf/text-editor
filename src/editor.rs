@@ -1,14 +1,25 @@
-use crossterm::event::{read, Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers};
+use crossterm::event::{read, Event::{self, Key}, KeyCode::{self, Char}, KeyEvent, KeyEventKind, KeyModifiers};
 use std::io;
 use super::terminal::{Terminal, Size, Position};
 
+pub enum Mode {
+   Normal,
+   Insert,
+}
+ 
+pub struct Location {
+    x: usize,
+    y: usize,
+}
 pub struct Editor {
     to_quit: bool,
+    location: Location,
+    mode: Mode,
 }
 
 impl Editor {
     pub const fn default() -> Self {
-        Self {to_quit: false}
+        Self {to_quit: false, location: Location{x:0, y:0}, mode: Mode::Normal}
     }
 
     pub fn run(&mut self) -> io::Result<()> {
@@ -18,16 +29,14 @@ impl Editor {
         Ok(())
     }
 
-
     pub fn refresh_screen(&self) -> io::Result<()> {
-        Terminal::hide_caret()?;
+        Terminal::hide_cursor()?;
         if self.to_quit {
             Terminal::clear_screen()?;
         }else {
-            Terminal::move_caret(Position{col:0, row:0})?;
             Self::draw_row()?;
         }
-        Terminal::show_caret()?;
+        Terminal::show_cursor()?;
         Ok(())
     }
 
@@ -48,7 +57,7 @@ impl Editor {
     fn repl(&mut self) -> io::Result<()> {
         loop {
             self.refresh_screen()?;
-            Terminal::move_caret(Position{col:0, row:0})?;
+            Terminal::move_cursor(Position{col:0, row:0})?;
             let event = read()?;
             self.read_event(&event);
             if self.to_quit {
@@ -57,10 +66,56 @@ impl Editor {
         }
         Ok(())
     }
-    fn read_event(&mut self, event: &Event) {
-        if let Key(KeyEvent{code, modifiers,..}) = event &&
-            let Char('c') = code && *modifiers == KeyModifiers::CONTROL {
-                self.to_quit = true;
+    
+    fn move_caret(&mut self, key_code: KeyCode) -> io::Result<()> {
+        let Location {mut x, mut y} = self.location;
+        let Size {height, width} = Terminal::size()?;
+        let max_x = usize::from(width.min(80).saturating_sub(1));
+        let max_y = usize::from(height.saturating_sub(1));
+        match key_code {
+            KeyCode::Char('k') => y = y.saturating_sub(1),
+            KeyCode::Char('j') => y = y.saturating_add(1).min(max_y),
+            KeyCode::Char('h') => x = x.saturating_sub(1),
+            KeyCode::Char('l') => x = x.saturating_add(1).min(max_x),
+            _ => return Ok(())
         }
+    self.location = Location{x,y};
+    Ok(())
+    }
+
+    fn read_event(&mut self, event: &Event) -> io::Result<()> {
+        if let Key(KeyEvent{code, modifiers, kind:KeyEventKind::Press, ..}) = event {
+            match code {
+                Char('c') if *modifiers == KeyModifiers::CONTROL => {
+                    self.to_quit = true;
+                }
+                _ => {
+                    match self.mode {
+                        Mode::Normal => {
+                            match code {
+                                Char('k')
+                                    | Char('j')
+                                    | Char('h')
+                                    | Char('l') => {
+                                        self.move_caret(*code)?;
+                                    }
+                                Char('i') => {self.mode = Mode::Insert;
+                                }
+                                _ => ()
+                            }
+                        }
+                        Mode::Insert => {
+                            match code {
+                                KeyCode::Esc => {
+                                    self.mode = Mode::Normal;
+                                }
+                                _ => ()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Ok(())
     }
 }
